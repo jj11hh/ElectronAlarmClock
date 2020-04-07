@@ -1,0 +1,6 @@
+@font-face {
+  font-family: "Lcd Digital Font";
+  src: url("../fonts/DigitalNumbers-Regular.ttf"); }
+
+.lcd-seg {
+  font-family: "Lcd Digital Font", serif; }

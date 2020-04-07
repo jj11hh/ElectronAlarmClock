@@ -1,0 +1,95 @@
+//@import '../../node_modules/bootswatch/dist/materia/variables';
+@import '../../node_modules/bootstrap/scss/bootstrap.scss';
+//@import '../../node_modules/bootswatch/dist/materia/bootswatch';
+@import './fonts.scss';
+@import './all.scss';
+
+.custom-navbar {
+    @extend .navbar; 
+    @extend .navbar-light;
+    @extend .bg-light;
+    @extend .mb-4;
+}
+
+.time-date-box {
+    width: 400px;
+    display: block;
+    margin: auto;
+    margin-bottom: 2rem;
+    position: relative;
+    text-align: center;
+}
+
+.color-lg {
+    color: #006eff;
+}
+
+.date-time-display {
+    @extend .lcd-seg;
+    @extend .color-lg;
+    font-size: 40pt;
+}
+
+.date-time-display-small {
+    @extend .lcd-seg;
+    @extend .color-lg;
+    font-size: 20pt;
+}
+
+.things-list {
+    @extend .list-group;
+    padding: 0;
+    display: flex;
+}
+
+div.item-container {
+    @extend .list-group-item;
+    @extend .input-group;
+    margin: 0;
+    padding:0;
+    display: flex;
+    width:100%;
+}
+
+.things-time {
+    @extend .lcd-seg;
+    display: block;
+    padding: 0.5rem;
+    width: 6em;
+    text-align: center;
+}
+
+.things-do {
+    @extend .form-control;
+    border: none;
+}
+
+.btn-things-del {
+    @extend .btn;
+    @extend .btn-danger;
+}
+
+.btn-things-edit {
+    @extend .btn;
+    @extend .btn-info;
+}
+
+.btn-list-more {
+    @extend .btn;
+    @extend .btn-info;
+    @extend .col-12;
+    display: block;
+    padding: 0.5rem;
+    text-align: center;
+    margin: 0;
+}
+
+.bottom-bar {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: white;
+    color: white;
+    text-align: center;
+}

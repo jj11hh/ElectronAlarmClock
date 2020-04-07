@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Clock</title>
+    <link rel="stylesheet" href="./content/css/all.min.css">
+    <link rel="stylesheet" href="./content/css/components.css">
+    <link rel="stylesheet" href="./node_modules/material-design-icons-iconfont/dist/material-design-icons.css">
+    <link rel="stylesheet" href="./node_modules/vuetify/dist/vuetify.min.css">
+    <script src="./node_modules/vue/dist/vue.js"></script>
+    <script src="./node_modules/vuetify/dist/vuetify.js"></script>
+  </head>
+  <body class="p-0 m-0">
+    <div id="app">
+      <v-app>
+        <v-navigation-drawer v-model="drawer" app :clipped="clipped">
+          <v-toolbar flat>
+            <v-list>
+              <v-list-tile>
+                <v-list-tile-title class="title">
+                  设置
+                </v-list-tile-title>
+              </v-list-tile>
+            </v-list>
+          </v-toolbar>
+      
+          <v-divider></v-divider>
+      
+          <v-list dense class="pt-0">
+            <v-list-tile
+              @click="testAlarm"
+            >
+              <v-list-tile-action>
+                <v-icon>play_arrow</v-icon>
+              </v-list-tile-action>
+      
+              <v-list-tile-content>
+                <v-list-tile-title>测试起闹</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile>
+              <v-list-tile-action>
+                <v-icon>library_music</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-select
+                  v-model="alarmMusic"
+                  :items="alarmMusicFiles"
+                  v-on:change="changeMusic"
+                  label="选择闹钟"
+                ></v-select>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile
+            @click="exit"
+          >
+            <v-list-tile-action>
+              <v-icon>exit_to_app</v-icon>
+            </v-list-tile-action>
+    
+            <v-list-tile-content>
+              <v-list-tile-title>退出</v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+          </v-list>
+        </v-navigation-drawer>
+        <v-toolbar fixed app :clipped-left="clipped">
+          <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+          <v-toolbar-title>Clock</v-toolbar-title>
+        </v-toolbar>
+        <v-content>
+          <v-container fluid>
+            <v-toolbar flat>
+              <ul class="nav nav-tabs row m-4" style="width:100%">
+                <li class="nav-item col m-0 p-0 text-center">
+                  <a class="nav-link active" data-toggle="tab" href="#tab-ui-alarm">闹钟</a>
+                </li>
+                <li class="nav-item col m-0 p-0 text-center">
+                  <a class="nav-link" data-toggle="tab" href="#tab-ui-stopwatch">秒表</a>
+                </li>
+                <li class="nav-item col m-0 p-0 text-center">
+                  <a class="nav-link" data-toggle="tab" href="#tab-ui-timer">定时器</a>
+                </li>
+              </ul>
+            </v-toolbar>
+              <div class="tab-content">
+                <div id="tab-ui-alarm" class="tab-pane container active">
+                  <div class="time-date-box">
+                    <span id="cur-time" class="date-time-display">{{curTime}}</span>
+                  </div>
+                  <div class="time-date-box">
+                      <span id="cur-date" class="date-time-display-small">{{curDate}}, {{curWeekday}}</span>
+                  </div>
+              
+                  <v-card>
+                    <v-subheader>
+                      闹钟
+                      <v-spacer></v-spacer>
+                      <v-btn icon flat v-on:click="addAlarm">
+                        <v-icon>add</v-icon>
+                      </v-btn>
+                    </v-subheader>
+                    <v-card-text>
+                      <v-list two-line>
+                            <template v-if="alarms.length > 0">
+                                <template 
+                                          v-for="alarm in alarms" 
+                                          v-bind:class="{disabled: disabled}"
+                                          >
+                                  <v-list-tile>
+                                    <v-list-tile-avatar>{{alarm.time}}</v-list-tile-avatar>
+                                    <v-list-tile-content>
+                                      <v-list-tile-title>
+                                        {{alarm.todo}}
+                                      </v-list-tile-title>
+                                      <v-list-tile-sub-title>
+                                        <template v-if="alarm.disabled">禁用 </template>
+                                        <template v-else>
+                                          <template v-for="day in alarm.activeDays">
+                                              {{dayToCN(day)[2]}}
+                                          </template>
+                                        </template>
+                                      </v-list-tile-sub-title>
+                                    </v-list-tile-content>
+                                    <v-list-tile-action>
+                                      <v-btn icon v-on:click="editAlarm(alarm)">
+                                          <v-icon>edit</v-icon>
+                                      </v-btn>
+                                    </v-list-tile-action>
+                                    <v-list-tile-action>
+                                      <v-btn icon color="red" outline v-on:click="delAlarm(alarm)">
+                                        <v-icon>delete</v-icon>
+                                      </v-btn>
+                                    </v-list-tile-action>
+                                  </v-list-tile>
+                                </template>
+                              </template>
+                              <template v-else>
+                                <v-list-tile>
+                                  (空)
+                                </v-list-tile>
+                              </template>
+                      </v-list>
+                    </v-card-text>
+                  </v-card>
+                </div>
+          
+          
+                <div id="tab-ui-timer" class="tab-pane container fade">
+                  <div class="time-date-box">
+                    <span id="cur-time" class="date-time-display">{{ timerTime }}</span>
+                  </div>
+
+                  <v-form v-model="timerValidate">
+                    <v-container>
+                      <v-layout wrap row>
+                        <v-flex xs8 sm6 md4>
+                          <v-select
+                            :items="[...Object.keys(timerSelections), '自定义']"
+                            label="时长"
+                            v-model="timerSelected"
+                            @change="selectTimer"
+                          >
+                          </v-select>
+                        </v-flex>
+                      </v-layout>
+                      <v-layout row>
+                        <v-flex xs12 sm3 md2>
+                          <v-text-field v-model="timerSetH" label="时" @change="checkTimer"></v-text-field>
+                        </v-flex>
+
+                        <v-flex xs12 sm3 md2>
+                          <v-text-field v-model="timerSetM" label="分" @change="checkTimer"></v-text-field>
+                        </v-flex>
+
+                        <v-flex xs12 sm3 md2>
+                          <v-text-field v-model="timerSetS" label="秒" @change="checkTimer"></v-text-field>
+                        </v-flex>
+                      </v-layout>
+                    </v-container>
+                  </v-form>
+                  <div
+                    class="bottom-bar"
+                  >
+                    <template v-if="timerStarted">
+                      <v-btn flat v-on:click="timerStop">
+                        <v-icon left>stop</v-icon>
+                        <span>停止</span>
+                      </v-btn>
+                    </template>
+                    <template v-else>
+                      <v-btn flat v-on:click="timerStart" :disabled="timerTime=='00:00:00'">
+                        <v-icon left>watch</v-icon>
+                        <span>开始</span>
+                      </v-btn>
+                    </template>
+                    <v-btn flat v-on:click="timerClear">
+                      <v-icon left>restore</v-icon>
+                      <span>重设</span>
+                    </v-btn>
+                  </div>
+                </div>
+          
+                <div id="tab-ui-stopwatch" class="tab-pane container fade">
+                  <div class="time-date-box">
+                    <span id="cur-time" class="date-time-display">{{ stopwatchTime }}</span>
+                  </div>
+                  <v-list>
+                    <v-subheader>记录</v-subheader>
+                    <template v-if='records.length > 0'>
+                      <template v-for="record in records">
+                        <v-list-tile>
+                          <v-list-tile-avatar>
+                            {{record.index}}
+                          </v-list-tile-avatar>
+                          <v-spacer></v-spacer>
+                          <v-list-tile-content>
+                            {{record.time}}
+                          </v-list-tile-content>
+                        </v-list-tile>
+                      </template>
+                    </template>
+                    <template v-else>
+                      <v-list-tile>
+                        <v-list-tile-content>
+                          (空)
+                        </v-list-tile-content>
+                      </v-list-tile>
+                    </template>
+                  </v-list>
+                  <div
+                    class="bottom-bar"
+                  >
+                    <template v-if="stopwatchStarted">
+                      <v-btn flat v-on:click="stopwatchStop">
+                        <v-icon left>stop</v-icon>
+                        <span>停止</span>
+                      </v-btn>
+                    </template>
+                    <template v-else>
+                      <v-btn flat v-on:click="stopwatchStart">
+                        <v-icon left>watch</v-icon>
+                        <span>开始</span>
+                      </v-btn>
+                    </template>
+                    <v-btn flat v-on:click="stopwatchRecord" v-bind:disabled="!stopwatchStarted">
+                      <v-icon left>loop</v-icon>
+                      <span>计圈</span>
+                    </v-btn>
+                    <v-btn flat v-on:click="stopwatchClear">
+                      <v-icon left>restore</v-icon>
+                      <span>重设</span>
+                    </v-btn>
+                  </div>
+                </div>
+              </div>
+          
+              <div id="modal-setting">
+                <modal-alarm-set v-bind:dialog="dialogAdd" v-on:confirmed="onAddOk" v-on:canceled="onAddCancel"></modal-alarm-set>
+                <modal-alarm-set 
+                  ref="modalSet"
+                  v-bind:dialog="dialogEdit"  
+                  v-bind:alarm="alarmToEdit"
+                  v-on:confirmed="onEditOk" 
+                  v-on:canceled="onEditCancel"
+                ></modal-alarm-set>
+                <modal-alarm-alert v-bind:dialog="dialogAlarm" title="时间到" @confirm="onAlarmConfirm" @delay="onAlarmDelay">
+                  {{dialogAlarmData.todo}}
+                  <v-spacer></v-spacer>
+                  {{dialogAlarmData.time}}
+                </modal-alarm-alert>
+              </div>
+            </v-container>
+        </v-content>
+      </v-app>
+    </div>
+
+    <script>
+      // You can also require other files to run in this process
+      require('./renderer.js')
+      require('./node_modules/bootstrap/dist/js/bootstrap.min.js')
+      require('./node_modules/jquery/dist/jquery.min.js')
+    </script>
+  </body>
+</html>
